@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '1.0'
+description = 'A simple Spring Boot application'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    runtimeOnly 'com.h2database:h2'
+    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Task to run unit tests only
+task unitTest(type: Test) {
+    useJUnitPlatform()
+    description = 'Run unit tests only'
+    group = 'verification'
+    
+    include '**/service/**Test.class'
+    include '**/controller/**Test.class'
+    exclude '**/integration/**Test.class'
+}
+
+// Task to run integration tests only
+task integrationTest(type: Test) {
+    useJUnitPlatform()
+    description = 'Run integration tests only'
+    group = 'verification'
+    
+    include '**/integration/**Test.class'
+}
+
+// Make test task depend on both unit and integration tests
+test.dependsOn unitTest, integrationTest
+
+springBoot {
+    mainClass = 'com.example.Application'
+}
